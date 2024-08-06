@@ -2,6 +2,7 @@ using FlowerWebsite.Service;
 using FlowerWebsite.Service.Config;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using SqlSugar;
 using System.Text;
 using ZhaoxiFlower.Model;
 
@@ -13,6 +14,38 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+
+
+
+// 添加配置服务
+builder.Services.AddSingleton<IConfiguration>(builder.Configuration);
+
+
+// 读取连接字符串
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+// 注册 SqlSugarClient
+builder.Services.AddScoped<SqlSugarClient>(provider =>
+    new SqlSugarClient(new ConnectionConfig()
+    {
+        ConnectionString = connectionString,
+        DbType = DbType.SqlServer,
+        IsAutoCloseConnection = true,
+    }));
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 builder.Services.AddAutoMapper(typeof(AutoMapperConfigs));
 builder.Services.Configure<JWTTokenOptions>(builder.Configuration.GetSection("JWTTokenOptions"));
@@ -47,9 +80,10 @@ builder.Services.AddTransient<ICustomJwtService, CustomJWTService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
+app.UseSwagger();
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
+    
     app.UseSwaggerUI();
 }
 builder.Services.AddCors();

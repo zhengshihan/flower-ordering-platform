@@ -5,6 +5,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>FlowerWebsite_API</RootNamespace>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -19,7 +20,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\FlowerWebsite.Common\FlowerWebsite.Common.csproj" />
-    <ProjectReference Include="..\FlowerWebsite.Modal\FlowerWebsite.Modal.csproj" />
+    <ProjectReference Include="..\FlowerWebsite.Modal\FlowerWebsite.Model.csproj" />
     <ProjectReference Include="..\FlowerWebsite.Service\FlowerWebsite.Service.csproj" />
   </ItemGroup>
 

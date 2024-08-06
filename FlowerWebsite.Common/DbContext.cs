@@ -6,18 +6,47 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
-
+using Microsoft.Extensions.Configuration;
+using System.IO;
 
 namespace FlowerWebsite.Common
 {
     public class DbContext
     {
-        public static SqlSugarClient db = new SqlSugarClient(new ConnectionConfig()
+        public static SqlSugarClient db;
+
+        static DbContext()
         {
-            ConnectionString = "Server=localhost;Database=FlowerWebSite;Trusted_Connection=True;MultipleActiveResultSets=True",
-            DbType = DbType.SqlServer,
-            IsAutoCloseConnection = true,
-        });
+            // Ensure the current directory is set correctly
+            var basePath = Directory.GetCurrentDirectory();
+
+            // Create a configuration builder to read from appsettings.json
+            var configurationBuilder = new ConfigurationBuilder()
+                .SetBasePath(basePath) // Set the base path to the current directory
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true); // Add appsettings.json
+
+            IConfiguration configuration = configurationBuilder.Build(); // Build the configuration
+
+            // Read the connection string from appsettings.json
+            string connectionString = configuration.GetConnectionString("DefaultConnection");
+
+            // Initialize the SqlSugarClient with the connection string
+            db = new SqlSugarClient(new ConnectionConfig()
+            {
+                ConnectionString = connectionString,
+                DbType = DbType.SqlServer,
+                IsAutoCloseConnection = true,
+            });
+        }
+        //public static SqlSugarClient db = new SqlSugarClient(new ConnectionConfig()
+        //{
+        //    //ConnectionString = "",
+        //    ConnectionString = "",
+        //    DbType = DbType.SqlServer,
+        //    IsAutoCloseConnection = true,
+        //});
+
+
         public static void InitDataBase()
         {
             db.DbMaintenance.CreateDatabase();
