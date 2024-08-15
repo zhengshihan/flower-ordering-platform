@@ -17,12 +17,26 @@ namespace FlowerWebsite_API.Controllers
             _flowerService = flowerService;
         }
         [HttpPost]
-        public ApiResult GetFlowers(FlowerReq req)
-        {   
-            ApiResult apiResult = new ApiResult() { IsSuccess = true};
-            apiResult.Result = _flowerService.GetFlowers(req);
+        public async Task<ApiResult> GetFlowers(FlowerReq req)
+        {
+            var apiResult = new ApiResult { IsSuccess = true };
+
+            try
+            {
+                // 调用异步方法并等待结果
+                var flowers = await _flowerService.GetFlowersAsync(req);
+                apiResult.Result = flowers;  // 设置结果
+            }
+            catch (Exception ex)
+            {
+                // 处理异常情况
+                apiResult.IsSuccess = false;
+                apiResult.Msg = ex.Message;
+            }
+
             return apiResult;
         }
+
 
     }
 }

@@ -1,11 +1,10 @@
 ﻿using AutoMapper;
 using FlowerWebsite.Common;
 using FlowerWebsite.Model.Entitys;
-using SqlSugar;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace FlowerWebsite.Service
@@ -13,48 +12,35 @@ namespace FlowerWebsite.Service
     public class FlowerService : IFlowerService
     {
         private readonly IMapper _mapper;
-        private readonly SqlSugarClient _db;
-        public FlowerService(IMapper mapper, SqlSugarClient db)
+        private readonly EFDbContext _context;
+
+        public FlowerService(IMapper mapper, EFDbContext context)
         {
             _mapper = mapper;
-            _db = db;
+            _context = context;
         }
 
-        public List<FlowerRes> GetFlowers(FlowerReq req)
+        public async Task<List<FlowerRes>> GetFlowersAsync(FlowerReq req)
         {
-            var res = _db.Queryable<Flower>()
-                        .WhereIF(req.Id > 0, x => x.Id == req.Id)
-                        .WhereIF(req.Type > 0, x => x.Type == req.Type)
-                        .ToList();
+            // Query the database using EF Core
+            var query = _context.Flowers.AsQueryable();
 
-            var flowerResList = _mapper.Map<List<FlowerRes>>(res);
+            // Apply filters based on request parameters
+            if (req.Id > 0)
+            {
+                query = query.Where(x => x.Id == req.Id);
+            }
+
+            if (req.Type > 0)
+            {
+                query = query.Where(x => x.Type == req.Type);
+            }
+
+            // Execute the query and map results to DTOs
+            var flowers = await query.ToListAsync();
+            var flowerResList = _mapper.Map<List<FlowerRes>>(flowers);
+
             return flowerResList;
         }
-
-        //public List<FlowerRes> GetFlowers(FlowerReq req)
-        //  {
-        //      var res = DbContext.db.Queryable<Flower>().WhereIF(req.Id > 0, x => x.Id == req.Id).WhereIF(req.Type > 0, x => x.Type == req.Type).ToList();
-        //      return _mapper.Map<List<FlowerRes>>(res);
-        //  }
-
-        //public List<FlowerRes> GetFlowers(FlowerReq req)
-        //{
-        //    using (var db = new SqlSugarClient(new ConnectionConfig()
-        //    {
-        //        ConnectionString = "Server=LAPTOP-R3RDRRQ1;Database=FlowerWebsite;Integrated Security=True;",
-        //        DbType = DbType.SqlServer,
-        //        IsAutoCloseConnection = true,
-        //    }))
-        //    {
-        //        var res = db.Queryable<Flower>()
-        //                    .WhereIF(req.Id > 0, x => x.Id == req.Id)
-        //                    .WhereIF(req.Type > 0, x => x.Type == req.Type)
-        //                    .ToList();
-
-        //        var flowerResList = _mapper.Map<List<FlowerRes>>(res);
-        //        return flowerResList;
-        //    }
-        //}
-
     }
 }

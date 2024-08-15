@@ -1,10 +1,13 @@
+using FlowerWebsite.Common;
 using FlowerWebsite.Service;
 using FlowerWebsite.Service.Config;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using SqlSugar;
 using System.Text;
 using ZhaoxiFlower.Model;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,7 +25,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddSingleton<IConfiguration>(builder.Configuration);
 
 
-// ¶ÁÈ¡Á¬½Ó×Ö·û´®
+/*// ¶ÁÈ¡Á¬½Ó×Ö·û´®
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
 // ×¢²á SqlSugarClient
@@ -32,11 +35,12 @@ builder.Services.AddScoped<SqlSugarClient>(provider =>
         ConnectionString = connectionString,
         DbType = DbType.SqlServer,
         IsAutoCloseConnection = true,
-    }));
+    }));*/
 
 
 
-
+builder.Services.AddDbContext<EFDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 
 

@@ -12,7 +12,7 @@ namespace FlowerWebsite_API.Controllers
         [HttpGet]
         public void InitDatabase()
         {
-            DbContext.InitDataBase();
+            SugarDbContext.InitDataBase();
         }
     }
 }

@@ -11,11 +11,11 @@ using System.IO;
 
 namespace FlowerWebsite.Common
 {
-    public class DbContext
+    public class SugarDbContext
     {
         public static SqlSugarClient db;
 
-        static DbContext()
+        static SugarDbContext()
         {
             // Ensure the current directory is set correctly
             var basePath = Directory.GetCurrentDirectory();

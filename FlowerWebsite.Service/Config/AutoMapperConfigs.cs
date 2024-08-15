@@ -13,8 +13,8 @@ namespace FlowerWebsite.Service.Config
         public AutoMapperConfigs() 
         {
             CreateMap<Flower,FlowerRes>();
-            CreateMap<Users,UserRes>();
-            CreateMap<RegisterReq, Users>();
+            CreateMap<User,UserRes>();
+            CreateMap<RegisterReq, User>();
 
         }
     }

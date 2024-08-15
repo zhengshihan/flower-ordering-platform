@@ -1,11 +1,11 @@
 ﻿using AutoMapper;
 using FlowerWebsite.Common;
 using FlowerWebsite.Model.Entitys;
-using SqlSugar;
+using FlowerWebsite.Model.Enum;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using ZhaoxiFlower.Service;
 
@@ -14,19 +14,28 @@ namespace FlowerWebsite.Service
     public class OrderService : IOrderService
     {
         private readonly IMapper _mapper;
-        public OrderService(IMapper mapper)
+        private readonly EFDbContext _context;
+
+        public OrderService(IMapper mapper, EFDbContext context)
         {
             _mapper = mapper;
+            _context = context;
         }
+
         public bool CreateOrder(OrderReq req, long userId, ref string msg)
         {
-            var flower = DbContext.db.Queryable<Flower>().First(p => p.Id == req.FlowerId);
+            // Retrieve the flower using EF Core
+            var flower = _context.Flowers
+                .FirstOrDefault(p => p.Id == req.FlowerId);
+
             if (flower == null)
             {
                 msg = "商品信息不存在！";
                 return false;
             }
-            Order order = new Order()
+
+            // Create a new Order and set properties
+            var order = new Order
             {
                 OrderNumber = DateTime.Now.ToString("yyyyMMddHHmmffff"),
                 OrderDate = DateTime.Now,
@@ -34,20 +43,34 @@ namespace FlowerWebsite.Service
                 FlowerId = req.FlowerId,
                 Price = flower.Price
             };
-            return DbContext.db.Insertable(order).ExecuteCommand() > 0;
+
+            // Add and save the new order to the database
+            _context.Orders.Add(order);
+            var result = _context.SaveChanges();
+
+            return result > 0;
         }
 
         public List<OrderRes> GetOrder(long userId)
         {
-            var order = DbContext.db.Queryable<Order>().Where(p => p.UserId == userId).Select(s => new OrderRes
-            {
-                Id = s.Id,
-                OrderNumber = s.OrderNumber,
-                Price= s.Price,
-                OrderDate = s.OrderDate,
-                FlowerTitle = SqlFunc.Subqueryable<Flower>().Where(f => f.Id == s.FlowerId).Select(f => f.Title)
-            }).OrderBy(p => p.OrderDate, OrderByType.Desc).ToList();
-            return order;
+            // Query orders and include flower title using EF Core
+            var orders = _context.Orders
+                .Where(p => p.UserId == userId)
+                .Select(s => new OrderRes
+                {
+                    Id = s.Id,
+                    OrderNumber = s.OrderNumber,
+                    Price = s.Price,
+                    OrderDate = s.OrderDate,
+                    FlowerTitle = _context.Flowers
+                        .Where(f => f.Id == s.FlowerId)
+                        .Select(f => f.Title)
+                        .FirstOrDefault()
+                })
+                .OrderByDescending(p => p.OrderDate)
+                .ToList();
+
+            return orders;
         }
     }
 }
