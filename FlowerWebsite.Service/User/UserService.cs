@@ -43,7 +43,7 @@ namespace FlowerWebsite.Service
 
             if (existingUser != null)
             {
-                msg = "账号已存在！";
+                msg = "user has alrealdy existed！";
                 return _mapper.Map<UserRes>(existingUser);
             }
 

@@ -78,9 +78,25 @@ namespace FlowerWebsite_API.Controllers
         {
             var currCode = MemoryHelper.GetMemory(req.ValidateKey);
             ApiResult apiResult = new ApiResult() { IsSuccess = false };
-            if (string.IsNullOrEmpty(req.UserName) || string.IsNullOrEmpty(req.Password) || string.IsNullOrEmpty(req.NickName) || string.IsNullOrEmpty(req.ValidateKey) || string.IsNullOrEmpty(req.ValidateCode))
+            if (string.IsNullOrEmpty(req.UserName))
             {
-                apiResult.Msg = "参数不能为空！";
+                apiResult.Msg = "Username cannot be null!";
+            }
+            else if (string.IsNullOrEmpty(req.Password))
+            {
+                apiResult.Msg = "Password cannot be null!";
+            }
+            else if (string.IsNullOrEmpty(req.NickName))
+            {
+                apiResult.Msg = "NickName cannot be null!";
+            }
+            else if (string.IsNullOrEmpty(req.ValidateKey))
+            {
+                apiResult.Msg = "ValidateKey cannot be null!";
+            }
+            else if (string.IsNullOrEmpty(req.ValidateCode))
+            {
+                apiResult.Msg = "ValidateCode cannot be null!";
             }
             else if (currCode == null)
             {
